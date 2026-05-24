@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuildUp — Landing Page Builder</title>
+  <meta name="description" content="BuildUp: A premium drag-and-drop landing page builder with GitHub export." />
+
+  <!-- ═══════════════════════════════════════════
+       CDN DEPENDENCIES
+  ═══════════════════════════════════════════ -->
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- GrapesJS Core -->
+  <link rel="stylesheet" href="https://unpkg.com/grapesjs@0.21.13/dist/css/grapes.min.css" />
+  <script src="https://unpkg.com/grapesjs@0.21.13/dist/grapes.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+  <!-- Firebase v9+ compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- ═══════════════════════════════════════════
+       TAILWIND CONFIG
+  ═══════════════════════════════════════════ -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          colors: {
+            neon: { cyan: '#00f0ff', purple: '#a855f7', blue: '#3b82f6', pink: '#ec4899' },
+            surface: {
+              900: '#08080c', 800: '#0d0d14', 700: '#12121c', 600: '#1a1a28',
+              500: '#222236', 400: '#2a2a42', 300: '#3a3a55',
+            },
+          },
+          boxShadow: {
+            neon: '0 0 20px rgba(0,240,255,0.15), 0 0 60px rgba(0,240,255,0.05)',
+            'neon-lg': '0 0 30px rgba(0,240,255,0.25), 0 0 80px rgba(0,240,255,0.1)',
+            'neon-purple': '0 0 20px rgba(168,85,247,0.2), 0 0 60px rgba(168,85,247,0.08)',
+            glass: '0 8px 32px rgba(0,0,0,0.4)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ═══════════════════════════════════════════
+       GLOBAL STYLES
+  ═══════════════════════════════════════════ -->
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-family: 'Inter', sans-serif; background: #08080c; color: #e2e8f0; }
+    body { overflow: hidden; height: 100vh; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,240,255,0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,240,255,0.35); }
+
+    /* ── Glass ── */
+    .glass {
+      background: rgba(13, 13, 20, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 240, 255, 0.08);
+    }
+    .glass-card {
+      background: rgba(18, 18, 28, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px;
+    }
+
+    /* ── Neon Glow Button ── */
+    .btn-neon {
+      background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(168,85,247,0.12));
+      border: 1px solid rgba(0,240,255,0.2);
+      color: #00f0ff;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-neon:hover {
+      background: linear-gradient(135deg, rgba(0,240,255,0.22), rgba(168,85,247,0.22));
+      border-color: rgba(0,240,255,0.4);
+      box-shadow: 0 0 20px rgba(0,240,255,0.15);
+      transform: translateY(-1px);
+    }
+    .btn-neon.purple {
+      background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(236,72,153,0.1));
+      border-color: rgba(168,85,247,0.25);
+      color: #c084fc;
+    }
+    .btn-neon.purple:hover {
+      background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(236,72,153,0.2));
+      border-color: rgba(168,85,247,0.5);
+      box-shadow: 0 0 20px rgba(168,85,247,0.2);
+    }
+    .btn-neon.solid {
+      background: linear-gradient(135deg, #00f0ff, #a855f7);
+      color: #08080c;
+      border: none;
+      font-weight: 600;
+    }
+    .btn-neon.solid:hover {
+      box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(168,85,247,0.15);
+    }
+
+    /* ── Input ── */
+    .input-dark {
+      background: rgba(18, 18, 28, 0.8);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #e2e8f0;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .input-dark:focus {
+      border-color: rgba(0,240,255,0.3);
+      box-shadow: 0 0 0 3px rgba(0,240,255,0.06);
+    }
+
+    /* ── Component Drag Items ── */
+    .comp-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: grab;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .comp-item:hover {
+      background: rgba(0,240,255,0.05);
+      border-color: rgba(0,240,255,0.12);
+      color: #00f0ff;
+      transform: translateX(3px);
+    }
+    .comp-item .comp-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,240,255,0.06);
+      flex-shrink: 0;
+    }
+    .comp-item:hover .comp-icon { background: rgba(0,240,255,0.12); }
+
+    /* ── Section headers ── */
+    .section-header {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0,240,255,0.5);
+      padding: 12px 16px 6px;
+      user-select: none;
+    }
+
+    /* ── GrapesJS Overrides ── */
+    .gjs-one-bg { background-color: transparent !important; }
+    .gjs-two-color { color: #94a3b8 !important; }
+    .gjs-three-bg { background-color: rgba(0,240,255,0.12) !important; }
+    .gjs-four-color, .gjs-four-color-h:hover { color: #00f0ff !important; }
+    .gjs-cv-canvas { background: #0d0d14 !important; top: 0 !important; width: 100% !important; height: 100% !important; }
+    .gjs-frame-wrapper { padding: 0px !important; }
+    .gjs-frame { border-radius: 0 !important; box-shadow: none !important; }
+    .gjs-toolbar { background: rgba(8,8,12,0.95) !important; border: 1px solid rgba(0,240,255,0.15) !important; border-radius: 8px !important; backdrop-filter: blur(12px) !important; }
+    .gjs-toolbar-item { color: #94a3b8 !important; }
+    .gjs-toolbar-item:hover { color: #00f0ff !important; }
+    .gjs-badge { background: rgba(0,240,255,0.15) !important; color: #00f0ff !important; font-size: 10px !important; border-radius: 4px !important; }
+    .gjs-highlighter, .gjs-selected { outline: 2px solid rgba(0,240,255,0.5) !important; outline-offset: -2px; }
+    .gjs-ghost { background: rgba(0,240,255,0.05) !important; border: 2px dashed rgba(0,240,255,0.3) !important; border-radius: 4px; }
+    .gjs-dashed *[data-gjs-highlightable] { outline: 1px dashed rgba(255,255,255,0.06) !important; }
+    .gjs-resizer-h { border-color: #00f0ff !important; }
+    .gjs-pn-panel, .gjs-pn-panels { background: transparent !important; }
+    .gjs-rte-toolbar { background: rgba(8,8,12,0.95) !important; border: 1px solid rgba(0,240,255,0.1) !important; border-radius: 8px !important; color: #e2e8f0 !important; }
+
+    /* ── Modal / Overlay ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: linear-gradient(145deg, #12121c, #0d0d14);
+      border: 1px solid rgba(0,240,255,0.1);
+      border-radius: 16px;
+      padding: 28px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,240,255,0.05);
+      transform: scale(0.95) translateY(10px);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+
+    /* ── Property group ── */
+    .prop-group { margin-bottom: 4px; }
+    .prop-group-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 10px 0 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .prop-group-title:hover { color: #94a3b8; }
+    .prop-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .prop-row label {
+      font-size: 11px;
+      color: #64748b;
+      min-width: 60px;
+      flex-shrink: 0;
+    }
+    .prop-row input, .prop-row select {
+      flex: 1;
+      background: rgba(8,8,12,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 6px 8px;
+      color: #e2e8f0;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .prop-row input:focus, .prop-row select:focus {
+      border-color: rgba(0,240,255,0.25);
+    }
+    .prop-row input[type="color"] {
+      padding: 2px;
+      width: 36px;
+      height: 30px;
+      flex: 0 0 36px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .spacing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+    .spacing-grid .prop-row { margin-bottom: 0; }
+    .spacing-grid label { min-width: 36px; font-size: 10px; }
+    .spacing-grid input { font-size: 11px; padding: 5px 6px; }
+
+    /* ── Template Card ── */
+    .template-card {
+      background: rgba(18,18,28,0.5);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .template-card:hover {
+      border-color: rgba(0,240,255,0.2);
+      background: rgba(0,240,255,0.03);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .template-card.selected {
+      border-color: rgba(0,240,255,0.4);
+      box-shadow: 0 0 20px rgba(0,240,255,0.1);
+    }
+
+    /* ── Notification Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 99999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 380px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+    .toast.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+    .toast.info {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      color: #67e8f9;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-glow { 0%,100% { box-shadow: 0 0 8px rgba(0,240,255,0.1); } 50% { box-shadow: 0 0 20px rgba(0,240,255,0.25); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .animate-fade-in { animation: fadeInUp 0.4s ease-out; }
+
+    /* ── Project Card ── */
+    .project-card {
+      background: rgba(18,18,28,0.5);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .project-card:hover {
+      border-color: rgba(0,240,255,0.15);
+      background: rgba(0,240,255,0.02);
+    }
+
+    /* ── Responsive Toggle ── */
+    .device-btn {
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .device-btn:hover { color: #94a3b8; }
+    .device-btn.active {
+      color: #00f0ff;
+      background: rgba(0,240,255,0.08);
+      border-color: rgba(0,240,255,0.15);
+    }
+
+    /* hide GrapesJS default panels we don't need */
+    .gjs-pn-views, .gjs-pn-views-container, .gjs-pn-commands, .gjs-pn-options,
+    .gjs-pn-devices-c, .gjs-blocks-c { display: none !important; }
+  </style>
+</head>
+
+<body class="dark bg-surface-900 overflow-hidden h-screen">
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TOP NAV BAR
+  ═══════════════════════════════════════════════════════════════ -->
+  <header id="topBar" class="glass fixed top-0 left-0 right-0 h-14 z-50 flex items-center px-4 gap-3" style="border-bottom: 1px solid rgba(0,240,255,0.06);">
+    <!-- Logo -->
+    <div class="flex items-center gap-2 mr-3 flex-shrink-0 cursor-pointer select-none" onclick="showToast('BuildUp v1.0 — Premium Landing Page Builder', 'info')">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #00f0ff, #a855f7);">
+        <i data-lucide="layers" class="w-4 h-4 text-surface-900"></i>
+      </div>
+      <span class="text-base font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">BuildUp</span>
+    </div>
+
+    <!-- Separator -->
+    <div class="w-px h-6 bg-white/5 mx-1"></div>
+
+    <!-- Page Name -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-500"></i>
+      <input id="pageName" type="text" value="my-landing-page" class="input-dark !py-1.5 !px-2 !text-xs !w-40 font-mono" placeholder="page-name" />
+    </div>
+
+    <!-- Separator -->
+    <div class="w-px h-6 bg-white/5 mx-1"></div>
+
+    <!-- Device Toggle -->
+    <div class="flex items-center gap-1 flex-shrink-0">
+      <button class="device-btn active" data-device="desktop" onclick="setDevice('desktop', this)" title="Desktop"><i data-lucide="monitor" class="w-4 h-4"></i></button>
+      <button class="device-btn" data-device="tablet" onclick="setDevice('tablet', this)" title="Tablet"><i data-lucide="tablet" class="w-4 h-4"></i></button>
+      <button class="device-btn" data-device="mobile" onclick="setDevice('mobile', this)" title="Mobile"><i data-lucide="smartphone" class="w-4 h-4"></i></button>
+    </div>
+
+    <!-- Spacer -->
+    <div class="flex-1"></div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button class="btn-neon" onclick="openModal('templatesModal')"><i data-lucide="layout-template" class="w-3.5 h-3.5"></i> Templates</button>
+      <button class="btn-neon" onclick="previewPage()"><i data-lucide="eye" class="w-3.5 h-3.5"></i> Preview</button>
+      <button class="btn-neon purple" onclick="openModal('githubModal')"><i data-lucide="github" class="w-3.5 h-3.5"></i> GitHub</button>
+      <button class="btn-neon" onclick="exportToGitHub()"><i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Export</button>
+
+      <div class="w-px h-6 bg-white/5"></div>
+
+      <button class="btn-neon" onclick="saveProject()"><i data-lucide="save" class="w-3.5 h-3.5"></i> Save</button>
+      <button class="btn-neon" onclick="openModal('projectsModal')"><i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Projects</button>
+
+      <div class="w-px h-6 bg-white/5"></div>
+
+      <!-- User / Auth -->
+      <div id="authArea">
+        <button class="btn-neon solid" onclick="openModal('authModal')"><i data-lucide="log-in" class="w-3.5 h-3.5"></i> Sign In</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MAIN LAYOUT: LEFT SIDEBAR + CANVAS + RIGHT SIDEBAR
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="flex" style="padding-top: 56px; height: 100vh;">
+
+    <!-- ── LEFT SIDEBAR: COMPONENTS ── -->
+    <aside id="leftSidebar" class="w-64 flex-shrink-0 glass overflow-y-auto" style="border-right: 1px solid rgba(0,240,255,0.06); height: calc(100vh - 56px);">
+
+      <!-- Search -->
+      <div class="p-3 sticky top-0 z-10" style="background: rgba(8,8,12,0.85); backdrop-filter: blur(12px);">
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+          <input id="compSearch" type="text" placeholder="Search components…" class="input-dark !pl-9 !py-2 !text-xs" oninput="filterComponents(this.value)" />
+        </div>
+      </div>
+
+      <div id="componentList" class="px-2 pb-6">
+        <!-- Sections -->
+        <div class="section-header">Sections</div>
+        <div class="comp-item" draggable="true" data-type="navbar">
+          <div class="comp-icon"><i data-lucide="menu" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Navbar</div><div class="text-[10px] text-slate-500">Navigation bar</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="hero">
+          <div class="comp-icon"><i data-lucide="sparkles" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Hero</div><div class="text-[10px] text-slate-500">Hero section</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="trust-bar">
+          <div class="comp-icon"><i data-lucide="award" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Trust Bar</div><div class="text-[10px] text-slate-500">Logos & social proof</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="features">
+          <div class="comp-icon"><i data-lucide="grid-3x3" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Features Grid</div><div class="text-[10px] text-slate-500">Feature cards</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="stats">
+          <div class="comp-icon"><i data-lucide="bar-chart-3" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Stats</div><div class="text-[10px] text-slate-500">Animated counters</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="showcase">
+          <div class="comp-icon"><i data-lucide="monitor" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Product Showcase</div><div class="text-[10px] text-slate-500">Screenshot display</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="testimonials">
+          <div class="comp-icon"><i data-lucide="message-circle" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Testimonials</div><div class="text-[10px] text-slate-500">Customer reviews</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="pricing">
+          <div class="comp-icon"><i data-lucide="credit-card" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Pricing</div><div class="text-[10px] text-slate-500">3-tier pricing table</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="faq">
+          <div class="comp-icon"><i data-lucide="help-circle" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">FAQ Accordion</div><div class="text-[10px] text-slate-500">Q&A section</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="cta">
+          <div class="comp-icon"><i data-lucide="megaphone" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">CTA</div><div class="text-[10px] text-slate-500">Call to action</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="footer">
+          <div class="comp-icon"><i data-lucide="panel-bottom" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Footer</div><div class="text-[10px] text-slate-500">Footer section</div></div>
+        </div>
+
+        <!-- Basic Elements -->
+        <div class="section-header mt-2">Basic</div>
+        <div class="comp-item" draggable="true" data-type="heading">
+          <div class="comp-icon"><i data-lucide="type" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Heading</div><div class="text-[10px] text-slate-500">H1 – H6</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="paragraph">
+          <div class="comp-icon"><i data-lucide="align-left" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Paragraph</div><div class="text-[10px] text-slate-500">Text block</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="button">
+          <div class="comp-icon"><i data-lucide="mouse-pointer-click" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Button</div><div class="text-[10px] text-slate-500">CTA button</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="image">
+          <div class="comp-icon"><i data-lucide="image" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Image</div><div class="text-[10px] text-slate-500">Photo / graphic</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="video">
+          <div class="comp-icon"><i data-lucide="play-circle" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Video</div><div class="text-[10px] text-slate-500">Embed video</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="form">
+          <div class="comp-icon"><i data-lucide="text-cursor-input" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Form</div><div class="text-[10px] text-slate-500">Email capture</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="divider">
+          <div class="comp-icon"><i data-lucide="minus" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Divider</div><div class="text-[10px] text-slate-500">Horizontal rule</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="spacer">
+          <div class="comp-icon"><i data-lucide="move-vertical" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Spacer</div><div class="text-[10px] text-slate-500">Empty space</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="container">
+          <div class="comp-icon"><i data-lucide="columns-3" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Container</div><div class="text-[10px] text-slate-500">Column layout</div></div>
+        </div>
+
+        <!-- Advanced -->
+        <div class="section-header mt-2">Advanced</div>
+        <div class="comp-item" draggable="true" data-type="countdown">
+          <div class="comp-icon"><i data-lucide="timer" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Countdown</div><div class="text-[10px] text-slate-500">Timer widget</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="team">
+          <div class="comp-icon"><i data-lucide="users" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Team</div><div class="text-[10px] text-slate-500">Team members</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="gallery">
+          <div class="comp-icon"><i data-lucide="gallery-horizontal-end" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Gallery</div><div class="text-[10px] text-slate-500">Image gallery</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="progress">
+          <div class="comp-icon"><i data-lucide="loader" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Progress Bar</div><div class="text-[10px] text-slate-500">Skill bars</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="timeline">
+          <div class="comp-icon"><i data-lucide="git-branch" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Timeline</div><div class="text-[10px] text-slate-500">Step process</div></div>
+        </div>
+        <div class="comp-item" draggable="true" data-type="map">
+          <div class="comp-icon"><i data-lucide="map-pin" class="w-4 h-4"></i></div>
+          <div><div class="font-medium text-xs text-slate-300">Map</div><div class="text-[10px] text-slate-500">Location embed</div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── CANVAS (GrapesJS) ── -->
+    <main id="editorCanvas" class="flex-1 relative" style="height: calc(100vh - 56px);">
+      <div id="gjs" style="height: 100%; width: 100%;"></div>
+    </main>
+
+    <!-- ── RIGHT SIDEBAR: PROPERTIES ── -->
+    <aside id="rightSidebar" class="w-72 flex-shrink-0 glass overflow-y-auto" style="border-left: 1px solid rgba(0,240,255,0.06); height: calc(100vh - 56px);">
+      <div class="p-4">
+        <!-- Header -->
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background: rgba(168,85,247,0.12);">
+            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-neon-purple"></i>
+          </div>
+          <span class="text-sm font-semibold text-slate-300">Properties</span>
+          <span id="selectedTag" class="ml-auto text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-slate-500">none</span>
+        </div>
+
+        <!-- No Selection State -->
+        <div id="noSelection" class="text-center py-12">
+          <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style="background: rgba(0,240,255,0.04); border: 1px dashed rgba(0,240,255,0.1);">
+            <i data-lucide="mouse-pointer" class="w-7 h-7 text-slate-600"></i>
+          </div>
+          <p class="text-xs text-slate-500">Click any element on the canvas<br/>to edit its properties</p>
+        </div>
+
+        <!-- Properties Panel (shown when element selected) -->
+        <div id="propsPanel" class="hidden">
+          <!-- Content -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="type" class="w-3 h-3"></i> Content</div>
+            <div class="prop-row">
+              <label>Text</label>
+              <input id="propText" type="text" placeholder="Element text…" oninput="updateProp('text', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Link</label>
+              <input id="propLink" type="text" placeholder="https://…" oninput="updateProp('link', this.value)" />
+            </div>
+          </div>
+
+          <!-- Typography -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="a-large-small" class="w-3 h-3"></i> Typography</div>
+            <div class="prop-row">
+              <label>Size</label>
+              <input id="propFontSize" type="number" min="8" max="200" placeholder="16" oninput="updateStyle('font-size', this.value + 'px')" />
+              <span class="text-[10px] text-slate-500">px</span>
+            </div>
+            <div class="prop-row">
+              <label>Weight</label>
+              <select id="propFontWeight" onchange="updateStyle('font-weight', this.value)">
+                <option value="300">Light</option>
+                <option value="400" selected>Regular</option>
+                <option value="500">Medium</option>
+                <option value="600">Semi Bold</option>
+                <option value="700">Bold</option>
+                <option value="800">Extra Bold</option>
+                <option value="900">Black</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Color</label>
+              <input id="propColor" type="color" value="#ffffff" oninput="updateStyle('color', this.value)" />
+              <input id="propColorText" type="text" value="#ffffff" class="!flex-1" oninput="updateStyle('color', this.value); document.getElementById('propColor').value=this.value;" />
+            </div>
+            <div class="prop-row">
+              <label>Align</label>
+              <select id="propTextAlign" onchange="updateStyle('text-align', this.value)">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+                <option value="justify">Justify</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Line H</label>
+              <input id="propLineHeight" type="number" step="0.1" min="0.5" max="5" placeholder="1.5" oninput="updateStyle('line-height', this.value)" />
+            </div>
+          </div>
+
+          <!-- Background -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="palette" class="w-3 h-3"></i> Background</div>
+            <div class="prop-row">
+              <label>Color</label>
+              <input id="propBgColor" type="color" value="#0d0d14" oninput="updateStyle('background-color', this.value)" />
+              <input id="propBgColorText" type="text" value="" placeholder="transparent" class="!flex-1" oninput="updateStyle('background-color', this.value); try{document.getElementById('propBgColor').value=this.value;}catch(e){}" />
+            </div>
+            <div class="prop-row">
+              <label>Image</label>
+              <input id="propBgImage" type="text" placeholder="url(…)" oninput="updateStyle('background-image', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Gradient</label>
+              <input id="propGradient" type="text" placeholder="linear-gradient(…)" oninput="updateStyle('background', this.value)" />
+            </div>
+          </div>
+
+          <!-- Margin -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="move" class="w-3 h-3"></i> Margin</div>
+            <div class="spacing-grid">
+              <div class="prop-row"><label>Top</label><input id="propMarginTop" type="number" placeholder="0" oninput="updateStyle('margin-top', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Right</label><input id="propMarginRight" type="number" placeholder="0" oninput="updateStyle('margin-right', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Bottom</label><input id="propMarginBottom" type="number" placeholder="0" oninput="updateStyle('margin-bottom', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Left</label><input id="propMarginLeft" type="number" placeholder="0" oninput="updateStyle('margin-left', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+            </div>
+          </div>
+
+          <!-- Padding -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="maximize-2" class="w-3 h-3"></i> Padding</div>
+            <div class="spacing-grid">
+              <div class="prop-row"><label>Top</label><input id="propPaddingTop" type="number" placeholder="0" oninput="updateStyle('padding-top', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Right</label><input id="propPaddingRight" type="number" placeholder="0" oninput="updateStyle('padding-right', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Bottom</label><input id="propPaddingBottom" type="number" placeholder="0" oninput="updateStyle('padding-bottom', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Left</label><input id="propPaddingLeft" type="number" placeholder="0" oninput="updateStyle('padding-left', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+            </div>
+          </div>
+
+          <!-- Size -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="ruler" class="w-3 h-3"></i> Size</div>
+            <div class="prop-row">
+              <label>Width</label>
+              <input id="propWidth" type="text" placeholder="auto" oninput="updateStyle('width', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Height</label>
+              <input id="propHeight" type="text" placeholder="auto" oninput="updateStyle('height', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Max W</label>
+              <input id="propMaxWidth" type="text" placeholder="none" oninput="updateStyle('max-width', this.value)" />
+            </div>
+          </div>
+
+          <!-- Border & Effects -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="square" class="w-3 h-3"></i> Border & Effects</div>
+            <div class="prop-row">
+              <label>Radius</label>
+              <input id="propBorderRadius" type="text" placeholder="0px" oninput="updateStyle('border-radius', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Border</label>
+              <input id="propBorder" type="text" placeholder="1px solid #fff" oninput="updateStyle('border', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Shadow</label>
+              <input id="propBoxShadow" type="text" placeholder="0 4px 12px rgba(…)" oninput="updateStyle('box-shadow', this.value)" />
+            </div>
+            <div class="prop-row">
+              <label>Opacity</label>
+              <input id="propOpacity" type="number" min="0" max="1" step="0.05" placeholder="1" oninput="updateStyle('opacity', this.value)" />
+            </div>
+          </div>
+
+          <!-- Layout -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="layout" class="w-3 h-3"></i> Layout</div>
+            <div class="prop-row">
+              <label>Display</label>
+              <select id="propDisplay" onchange="updateStyle('display', this.value)">
+                <option value="block">Block</option>
+                <option value="flex">Flex</option>
+                <option value="grid">Grid</option>
+                <option value="inline-block">Inline Block</option>
+                <option value="inline">Inline</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Flex Dir</label>
+              <select id="propFlexDir" onchange="updateStyle('flex-direction', this.value)">
+                <option value="row">Row</option>
+                <option value="column">Column</option>
+                <option value="row-reverse">Row Reverse</option>
+                <option value="column-reverse">Col Reverse</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Justify</label>
+              <select id="propJustify" onchange="updateStyle('justify-content', this.value)">
+                <option value="flex-start">Start</option>
+                <option value="center">Center</option>
+                <option value="flex-end">End</option>
+                <option value="space-between">Space Between</option>
+                <option value="space-around">Space Around</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Align</label>
+              <select id="propAlignItems" onchange="updateStyle('align-items', this.value)">
+                <option value="stretch">Stretch</option>
+                <option value="flex-start">Start</option>
+                <option value="center">Center</option>
+                <option value="flex-end">End</option>
+              </select>
+            </div>
+            <div class="prop-row">
+              <label>Gap</label>
+              <input id="propGap" type="text" placeholder="0px" oninput="updateStyle('gap', this.value)" />
+            </div>
+          </div>
+
+          <!-- Animation -->
+          <div class="prop-group">
+            <div class="prop-group-title"><i data-lucide="zap" class="w-3 h-3"></i> Animation</div>
+            <div class="prop-row">
+              <label>Type</label>
+              <select id="propAnimation" onchange="updateProp('animation', this.value)">
+                <option value="">None</option>
+                <option value="fadeIn">Fade In</option>
+                <option value="fadeInUp">Fade In Up</option>
+                <option value="fadeInDown">Fade In Down</option>
+                <option value="fadeInLeft">Fade In Left</option>
+                <option value="fadeInRight">Fade In Right</option>
+                <option value="zoomIn">Zoom In</option>
+                <option value="bounceIn">Bounce In</option>
+                <option value="slideUp">Slide Up</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="mt-4 flex gap-2">
+            <button class="btn-neon !text-[11px] flex-1" onclick="duplicateSelected()"><i data-lucide="copy" class="w-3 h-3"></i> Duplicate</button>
+            <button class="btn-neon !text-[11px] !text-red-400 !border-red-500/20 flex-1" onclick="deleteSelected()"><i data-lucide="trash-2" class="w-3 h-3"></i> Delete</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MODALS
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal-overlay" onclick="if(event.target===this)closeAllModals()">
+    <div class="modal-box !max-w-md">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white">Welcome to BuildUp</h3>
+        <button onclick="closeAllModals()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="authContent">
+        <div class="space-y-3 mb-4">
+          <input id="authEmail" type="email" placeholder="Email address" class="input-dark" />
+          <input id="authPassword" type="password" placeholder="Password" class="input-dark" />
+        </div>
+        <button class="btn-neon solid w-full justify-center !py-2.5 mb-3" onclick="emailSignIn()"><i data-lucide="mail" class="w-4 h-4"></i> Sign In with Email</button>
+        <button class="btn-neon w-full justify-center !py-2.5 mb-3" onclick="googleSignIn()">
+          <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Sign In with Google
+        </button>
+        <p class="text-xs text-center text-slate-500 mt-2">Don't have an account? <a href="#" class="text-neon-cyan hover:underline" onclick="toggleAuthMode()">Sign Up</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub Settings Modal -->
+  <div id="githubModal" class="modal-overlay" onclick="if(event.target===this)closeAllModals()">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="github" class="w-5 h-5"></i> GitHub Settings</h3>
+        <button onclick="closeAllModals()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1.5">Personal Access Token (repo scope)</label>
+          <input id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="input-dark font-mono" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Owner / Org</label>
+            <input id="ghOwner" type="text" placeholder="username" class="input-dark" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1.5">Repository Name</label>
+            <input id="ghRepo" type="text" placeholder="my-site" class="input-dark" />
+          </div>
+        </div>
+        <div class="glass-card p-3 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-neon-cyan flex-shrink-0 mt-0.5"></i>
+          <p class="text-[11px] text-slate-400 leading-relaxed">Your page will be exported to <code class="text-neon-cyan bg-white/5 px-1 rounded">https://&lt;owner&gt;.github.io/&lt;repo&gt;/&lt;page-name&gt;.html</code>. Enable GitHub Pages on the repo for it to work.</p>
+        </div>
+        <button class="btn-neon solid w-full justify-center !py-2.5" onclick="saveGitHubSettings()"><i data-lucide="save" class="w-4 h-4"></i> Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates Modal -->
+  <div id="templatesModal" class="modal-overlay" onclick="if(event.target===this)closeAllModals()">
+    <div class="modal-box !max-w-3xl !max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="layout-template" class="w-5 h-5 text-neon-cyan"></i> Starter Templates</h3>
+        <button onclick="closeAllModals()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="templateGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+    </div>
+  </div>
+
+  <!-- My Projects Modal -->
+  <div id="projectsModal" class="modal-overlay" onclick="if(event.target===this)closeAllModals()">
+    <div class="modal-box !max-w-lg">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="folder-open" class="w-5 h-5 text-neon-purple"></i> My Projects</h3>
+        <button onclick="closeAllModals()" class="text-slate-500 hover:text-white transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="projectsList" class="space-y-2 max-h-[60vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TOAST CONTAINER
+  ═══════════════════════════════════════════════════════════════ -->
+  <div id="toastContainer"></div>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       JAVASCRIPT — APP LOGIC
+  ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    // ══════════════════════════════════════════
+    //  FIREBASE CONFIG (Replace with your own)
+    // ══════════════════════════════════════════
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "000000000",
+      appId: "YOUR_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let currentUser = null;
+
+    // ══════════════════════════════════════════
+    //  COMPONENT HTML TEMPLATES
+    // ══════════════════════════════════════════
+    const componentHTML = {
+      navbar: `<nav style="display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(8,8,12,0.95);border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#00f0ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Brand</div>
+        <div style="display:flex;gap:32px;align-items:center;">
+          <a href="#" style="color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;">Features</a>
+          <a href="#" style="color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;">Pricing</a>
+          <a href="#" style="color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;">About</a>
+          <a href="#" style="color:#94a3b8;text-decoration:none;font-size:14px;font-weight:500;">Contact</a>
+          <a href="#" style="background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Get Started</a>
+        </div>
+      </nav>`,
+
+      hero: `<section style="padding:100px 48px;text-align:center;background:linear-gradient(180deg,#08080c 0%,#0d0d1a 100%);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:50%;left:50%;width:600px;height:600px;background:radial-gradient(circle,rgba(0,240,255,0.08) 0%,transparent 70%);transform:translate(-50%,-50%);pointer-events:none;"></div>
+        <div style="position:relative;z-index:1;max-width:800px;margin:0 auto;">
+          <div style="display:inline-block;background:rgba(0,240,255,0.08);border:1px solid rgba(0,240,255,0.15);border-radius:100px;padding:8px 20px;font-size:13px;color:#00f0ff;margin-bottom:24px;">✨ Now in Public Beta</div>
+          <h1 style="font-size:60px;font-weight:900;line-height:1.1;margin-bottom:24px;background:linear-gradient(135deg,#ffffff 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Build Beautiful Landing Pages in Minutes</h1>
+          <p style="font-size:18px;color:#64748b;max-width:560px;margin:0 auto 40px;line-height:1.7;">Drag, drop, customize. No coding required. Export directly to GitHub and go live instantly.</p>
+          <div style="display:flex;gap:16px;justify-content:center;">
+            <a href="#" style="background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;box-shadow:0 0 30px rgba(0,240,255,0.2);">Start Building Free →</a>
+            <a href="#" style="border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:500;font-size:16px;">Watch Demo</a>
+          </div>
+        </div>
+      </section>`,
+
+      'trust-bar': `<section style="padding:40px 48px;background:#0a0a12;border-top:1px solid rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.03);text-align:center;">
+        <p style="font-size:12px;color:#475569;text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;">Trusted by 10,000+ teams worldwide</p>
+        <div style="display:flex;justify-content:center;align-items:center;gap:48px;flex-wrap:wrap;opacity:0.4;">
+          <span style="font-size:22px;font-weight:800;color:#64748b;">Google</span>
+          <span style="font-size:22px;font-weight:800;color:#64748b;">Microsoft</span>
+          <span style="font-size:22px;font-weight:800;color:#64748b;">Stripe</span>
+          <span style="font-size:22px;font-weight:800;color:#64748b;">Vercel</span>
+          <span style="font-size:22px;font-weight:800;color:#64748b;">Linear</span>
+        </div>
+      </section>`,
+
+      features: `<section style="padding:80px 48px;background:#08080c;">
+        <div style="text-align:center;margin-bottom:56px;">
+          <h2 style="font-size:40px;font-weight:800;color:#ffffff;margin-bottom:16px;">Everything You Need</h2>
+          <p style="font-size:16px;color:#64748b;max-width:500px;margin:0 auto;">Powerful features to help you build, launch, and grow your online presence.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto;">
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,240,255,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">⚡</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Lightning Fast</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Optimized for speed. Your pages load in milliseconds.</p>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(168,85,247,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">🎨</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Fully Customizable</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Every pixel is adjustable. Make it truly yours.</p>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(59,130,246,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">🔒</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Secure & Reliable</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Enterprise-grade security with 99.99% uptime.</p>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(236,72,153,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">📱</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Responsive Design</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Looks perfect on every device, every time.</p>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(16,185,129,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">📊</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">Analytics Built In</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Track visitors, conversions, and growth metrics.</p>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:rgba(245,158,11,0.08);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:24px;">🚀</div>
+            <h3 style="font-size:18px;font-weight:700;color:#e2e8f0;margin-bottom:8px;">One-Click Deploy</h3>
+            <p style="font-size:14px;color:#64748b;line-height:1.6;">Publish to GitHub Pages with a single click.</p>
+          </div>
+        </div>
+      </section>`,
+
+      stats: `<section style="padding:80px 48px;background:linear-gradient(180deg,#0a0a14,#08080c);text-align:center;">
+        <div style="display:flex;justify-content:center;gap:64px;max-width:900px;margin:0 auto;">
+          <div>
+            <div style="font-size:56px;font-weight:900;background:linear-gradient(135deg,#00f0ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">10K+</div>
+            <div style="font-size:14px;color:#64748b;margin-top:8px;">Active Users</div>
+          </div>
+          <div>
+            <div style="font-size:56px;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">50M+</div>
+            <div style="font-size:14px;color:#64748b;margin-top:8px;">Pages Built</div>
+          </div>
+          <div>
+            <div style="font-size:56px;font-weight:900;background:linear-gradient(135deg,#3b82f6,#00f0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">99.9%</div>
+            <div style="font-size:14px;color:#64748b;margin-top:8px;">Uptime</div>
+          </div>
+          <div>
+            <div style="font-size:56px;font-weight:900;background:linear-gradient(135deg,#10b981,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">4.9★</div>
+            <div style="font-size:14px;color:#64748b;margin-top:8px;">User Rating</div>
+          </div>
+        </div>
+      </section>`,
+
+      showcase: `<section style="padding:80px 48px;background:#08080c;text-align:center;">
+        <h2 style="font-size:40px;font-weight:800;color:#fff;margin-bottom:16px;">See It in Action</h2>
+        <p style="font-size:16px;color:#64748b;margin-bottom:48px;">Beautiful pages, built with BuildUp.</p>
+        <div style="max-width:900px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 25px 80px rgba(0,0,0,0.5);">
+          <img src="https://picsum.photos/900/500?random=1" alt="Product" style="width:100%;display:block;" />
+        </div>
+      </section>`,
+
+      testimonials: `<section style="padding:80px 48px;background:#0a0a12;">
+        <div style="text-align:center;margin-bottom:48px;">
+          <h2 style="font-size:40px;font-weight:800;color:#fff;margin-bottom:12px;">Loved by Creators</h2>
+          <p style="font-size:16px;color:#64748b;">What our users are saying.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto;">
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:28px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <img src="https://picsum.photos/48/48?random=10" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" />
+              <div><div style="font-size:14px;font-weight:600;color:#e2e8f0;">Sarah Chen</div><div style="font-size:12px;color:#64748b;">@sarahc</div></div>
+            </div>
+            <p style="font-size:14px;color:#94a3b8;line-height:1.6;">"BuildUp saved me weeks of work. I launched my SaaS landing page in under an hour!"</p>
+            <div style="color:#f59e0b;margin-top:12px;font-size:14px;">★★★★★</div>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:28px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <img src="https://picsum.photos/48/48?random=11" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" />
+              <div><div style="font-size:14px;font-weight:600;color:#e2e8f0;">Alex Rivera</div><div style="font-size:12px;color:#64748b;">@alexr</div></div>
+            </div>
+            <p style="font-size:14px;color:#94a3b8;line-height:1.6;">"The GitHub export is genius. My workflow is now seamless. This tool is a game changer."</p>
+            <div style="color:#f59e0b;margin-top:12px;font-size:14px;">★★★★★</div>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:28px;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+              <img src="https://picsum.photos/48/48?random=12" style="width:44px;height:44px;border-radius:50%;object-fit:cover;" />
+              <div><div style="font-size:14px;font-weight:600;color:#e2e8f0;">Mia Kim</div><div style="font-size:12px;color:#64748b;">@miak</div></div>
+            </div>
+            <p style="font-size:14px;color:#94a3b8;line-height:1.6;">"As a designer, I appreciate the attention to detail. The dark theme is absolutely gorgeous."</p>
+            <div style="color:#f59e0b;margin-top:12px;font-size:14px;">★★★★★</div>
+          </div>
+        </div>
+      </section>`,
+
+      pricing: `<section style="padding:80px 48px;background:#08080c;">
+        <div style="text-align:center;margin-bottom:56px;">
+          <h2 style="font-size:40px;font-weight:800;color:#fff;margin-bottom:12px;">Simple Pricing</h2>
+          <p style="font-size:16px;color:#64748b;">Start free. Upgrade when you need to.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto;align-items:start;">
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="font-size:14px;color:#64748b;font-weight:600;margin-bottom:8px;">Free</div>
+            <div style="font-size:44px;font-weight:900;color:#fff;margin-bottom:4px;">$0</div>
+            <div style="font-size:13px;color:#475569;margin-bottom:24px;">Forever free</div>
+            <div style="border-top:1px solid rgba(255,255,255,0.04);padding-top:24px;space-y:12px;">
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ 3 pages</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Basic components</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ GitHub export</div>
+              <div style="font-size:14px;color:#475569;margin-bottom:10px;">✗ Custom domain</div>
+            </div>
+            <a href="#" style="display:block;text-align:center;border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:24px;">Get Started</a>
+          </div>
+          <div style="background:linear-gradient(145deg,rgba(0,240,255,0.06),rgba(168,85,247,0.06));border:1px solid rgba(0,240,255,0.15);border-radius:16px;padding:32px;position:relative;transform:scale(1.05);">
+            <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;font-size:11px;font-weight:700;padding:4px 16px;border-radius:100px;">POPULAR</div>
+            <div style="font-size:14px;color:#00f0ff;font-weight:600;margin-bottom:8px;">Pro</div>
+            <div style="font-size:44px;font-weight:900;color:#fff;margin-bottom:4px;">$19</div>
+            <div style="font-size:13px;color:#475569;margin-bottom:24px;">per month</div>
+            <div style="border-top:1px solid rgba(0,240,255,0.08);padding-top:24px;">
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Unlimited pages</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ All components</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Priority support</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Custom domain</div>
+            </div>
+            <a href="#" style="display:block;text-align:center;background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:12px;border-radius:10px;text-decoration:none;font-weight:700;margin-top:24px;box-shadow:0 0 20px rgba(0,240,255,0.2);">Upgrade to Pro</a>
+          </div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:32px;">
+            <div style="font-size:14px;color:#a855f7;font-weight:600;margin-bottom:8px;">Enterprise</div>
+            <div style="font-size:44px;font-weight:900;color:#fff;margin-bottom:4px;">$49</div>
+            <div style="font-size:13px;color:#475569;margin-bottom:24px;">per month</div>
+            <div style="border-top:1px solid rgba(255,255,255,0.04);padding-top:24px;">
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Everything in Pro</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ Team collaboration</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ White label</div>
+              <div style="font-size:14px;color:#94a3b8;margin-bottom:10px;">✓ API access</div>
+            </div>
+            <a href="#" style="display:block;text-align:center;border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:12px;border-radius:10px;text-decoration:none;font-weight:600;margin-top:24px;">Contact Sales</a>
+          </div>
+        </div>
+      </section>`,
+
+      faq: `<section style="padding:80px 48px;background:#0a0a12;">
+        <div style="max-width:700px;margin:0 auto;">
+          <h2 style="font-size:40px;font-weight:800;color:#fff;text-align:center;margin-bottom:48px;">Frequently Asked Questions</h2>
+          <div style="space-y:12px;">
+            <details style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:20px 24px;margin-bottom:12px;">
+              <summary style="font-size:15px;font-weight:600;color:#e2e8f0;cursor:pointer;list-style:none;">How do I get started?</summary>
+              <p style="font-size:14px;color:#64748b;margin-top:12px;line-height:1.6;">Simply drag components from the sidebar, customize them with the properties panel, and export to GitHub. No coding needed!</p>
+            </details>
+            <details style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:20px 24px;margin-bottom:12px;">
+              <summary style="font-size:15px;font-weight:600;color:#e2e8f0;cursor:pointer;list-style:none;">Is it really free?</summary>
+              <p style="font-size:14px;color:#64748b;margin-top:12px;line-height:1.6;">Yes! The free plan includes 3 pages, basic components, and GitHub export. Upgrade anytime for more features.</p>
+            </details>
+            <details style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:20px 24px;margin-bottom:12px;">
+              <summary style="font-size:15px;font-weight:600;color:#e2e8f0;cursor:pointer;list-style:none;">Can I use my own domain?</summary>
+              <p style="font-size:14px;color:#64748b;margin-top:12px;line-height:1.6;">Custom domains are available on the Pro plan. Point your domain to your GitHub Pages site.</p>
+            </details>
+            <details style="background:rgba(18,18,28,0.5);border:1px solid rgba(255,255,255,0.04);border-radius:12px;padding:20px 24px;margin-bottom:12px;">
+              <summary style="font-size:15px;font-weight:600;color:#e2e8f0;cursor:pointer;list-style:none;">Do I need a GitHub account?</summary>
+              <p style="font-size:14px;color:#64748b;margin-top:12px;line-height:1.6;">A GitHub account is needed only for export. You can build and preview without one.</p>
+            </details>
+          </div>
+        </div>
+      </section>`,
+
+      cta: `<section style="padding:80px 48px;background:linear-gradient(135deg,rgba(0,240,255,0.04),rgba(168,85,247,0.04));text-align:center;border-top:1px solid rgba(0,240,255,0.06);border-bottom:1px solid rgba(0,240,255,0.06);">
+        <div style="max-width:600px;margin:0 auto;">
+          <h2 style="font-size:44px;font-weight:900;color:#fff;margin-bottom:16px;">Ready to Build?</h2>
+          <p style="font-size:18px;color:#64748b;margin-bottom:36px;">Start creating your dream landing page today. No credit card required.</p>
+          <a href="#" style="background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:16px 48px;border-radius:12px;text-decoration:none;font-weight:700;font-size:18px;display:inline-block;box-shadow:0 0 40px rgba(0,240,255,0.2);">Get Started Free →</a>
+        </div>
+      </section>`,
+
+      footer: `<footer style="padding:48px 48px 32px;background:#06060a;border-top:1px solid rgba(255,255,255,0.04);">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;max-width:1100px;margin:0 auto 40px;">
+          <div>
+            <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#00f0ff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;">BuildUp</div>
+            <p style="font-size:13px;color:#475569;line-height:1.7;">The fastest way to build and deploy beautiful landing pages.</p>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Product</div>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Features</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Pricing</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Templates</a>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Company</div>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">About</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Blog</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Careers</a>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Support</div>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Help Center</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Contact</a>
+            <a href="#" style="display:block;color:#475569;text-decoration:none;font-size:13px;margin-bottom:10px;">Status</a>
+          </div>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.04);padding-top:24px;text-align:center;">
+          <p style="font-size:12px;color:#334155;">© 2025 BuildUp. All rights reserved.</p>
+        </div>
+      </footer>`,
+
+      heading: `<h2 style="font-size:36px;font-weight:800;color:#ffffff;padding:16px 24px;">Your Heading Here</h2>`,
+      paragraph: `<p style="font-size:16px;color:#94a3b8;line-height:1.7;padding:12px 24px;max-width:700px;">This is a paragraph block. Edit this text to add your own content. You can style it using the properties panel on the right.</p>`,
+      button: `<a href="#" style="display:inline-block;background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:14px 36px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;margin:16px 24px;box-shadow:0 0 20px rgba(0,240,255,0.15);">Click Me →</a>`,
+      image: `<div style="padding:16px 24px;"><img src="https://picsum.photos/800/400?random=5" alt="Image" style="width:100%;border-radius:12px;display:block;" /></div>`,
+      video: `<div style="padding:16px 24px;"><div style="position:relative;padding-bottom:56.25%;border-radius:12px;overflow:hidden;background:#12121c;"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allowfullscreen></iframe></div></div>`,
+      form: `<div style="padding:32px 48px;max-width:500px;margin:0 auto;">
+        <form style="display:flex;gap:12px;">
+          <input type="email" placeholder="Enter your email…" style="flex:1;padding:14px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(18,18,28,0.6);color:#e2e8f0;font-size:14px;outline:none;" />
+          <button type="submit" style="background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;padding:14px 28px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:14px;">Subscribe</button>
+        </form>
+      </div>`,
+      divider: `<hr style="border:none;height:1px;background:linear-gradient(90deg,transparent,rgba(0,240,255,0.2),transparent);margin:24px 48px;" />`,
+      spacer: `<div style="height:64px;"></div>`,
+      container: `<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:24px 48px;">
+        <div style="background:rgba(18,18,28,0.4);border:1px dashed rgba(255,255,255,0.06);border-radius:12px;padding:32px;min-height:120px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px;">Column 1 — Drop content here</div>
+        <div style="background:rgba(18,18,28,0.4);border:1px dashed rgba(255,255,255,0.06);border-radius:12px;padding:32px;min-height:120px;display:flex;align-items:center;justify-content:center;color:#475569;font-size:13px;">Column 2 — Drop content here</div>
+      </div>`,
+      countdown: `<section style="padding:60px 48px;text-align:center;background:#08080c;">
+        <h3 style="font-size:24px;color:#fff;font-weight:700;margin-bottom:32px;">Launching Soon</h3>
+        <div style="display:flex;justify-content:center;gap:24px;">
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(0,240,255,0.1);border-radius:16px;padding:24px 32px;min-width:100px;"><div style="font-size:48px;font-weight:900;color:#00f0ff;">12</div><div style="font-size:12px;color:#64748b;margin-top:4px;">Days</div></div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(168,85,247,0.1);border-radius:16px;padding:24px 32px;min-width:100px;"><div style="font-size:48px;font-weight:900;color:#a855f7;">08</div><div style="font-size:12px;color:#64748b;margin-top:4px;">Hours</div></div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(59,130,246,0.1);border-radius:16px;padding:24px 32px;min-width:100px;"><div style="font-size:48px;font-weight:900;color:#3b82f6;">45</div><div style="font-size:12px;color:#64748b;margin-top:4px;">Minutes</div></div>
+          <div style="background:rgba(18,18,28,0.5);border:1px solid rgba(236,72,153,0.1);border-radius:16px;padding:24px 32px;min-width:100px;"><div style="font-size:48px;font-weight:900;color:#ec4899;">23</div><div style="font-size:12px;color:#64748b;margin-top:4px;">Seconds</div></div>
+        </div>
+      </section>`,
+      team: `<section style="padding:80px 48px;background:#08080c;text-align:center;">
+        <h2 style="font-size:40px;font-weight:800;color:#fff;margin-bottom:48px;">Our Team</h2>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1000px;margin:0 auto;">
+          <div style="text-align:center;"><img src="https://picsum.photos/200/200?random=20" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 16px;display:block;border:2px solid rgba(0,240,255,0.15);" /><div style="font-size:16px;font-weight:600;color:#e2e8f0;">Jane Cooper</div><div style="font-size:13px;color:#00f0ff;">CEO</div></div>
+          <div style="text-align:center;"><img src="https://picsum.photos/200/200?random=21" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 16px;display:block;border:2px solid rgba(168,85,247,0.15);" /><div style="font-size:16px;font-weight:600;color:#e2e8f0;">Alex Morgan</div><div style="font-size:13px;color:#a855f7;">CTO</div></div>
+          <div style="text-align:center;"><img src="https://picsum.photos/200/200?random=22" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 16px;display:block;border:2px solid rgba(59,130,246,0.15);" /><div style="font-size:16px;font-weight:600;color:#e2e8f0;">Sam Lee</div><div style="font-size:13px;color:#3b82f6;">Lead Designer</div></div>
+          <div style="text-align:center;"><img src="https://picsum.photos/200/200?random=23" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 16px;display:block;border:2px solid rgba(236,72,153,0.15);" /><div style="font-size:16px;font-weight:600;color:#e2e8f0;">Priya Patel</div><div style="font-size:13px;color:#ec4899;">Engineer</div></div>
+        </div>
+      </section>`,
+      gallery: `<section style="padding:60px 48px;background:#0a0a12;">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:1100px;margin:0 auto;">
+          <img src="https://picsum.photos/300/300?random=30" style="width:100%;border-radius:12px;aspect-ratio:1;object-fit:cover;" />
+          <img src="https://picsum.photos/300/300?random=31" style="width:100%;border-radius:12px;aspect-ratio:1;object-fit:cover;" />
+          <img src="https://picsum.photos/300/300?random=32" style="width:100%;border-radius:12px;aspect-ratio:1;object-fit:cover;" />
+          <img src="https://picsum.photos/300/300?random=33" style="width:100%;border-radius:12px;aspect-ratio:1;object-fit:cover;" />
+        </div>
+      </section>`,
+      progress: `<section style="padding:60px 48px;background:#08080c;">
+        <div style="max-width:600px;margin:0 auto;">
+          <h3 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:32px;text-align:center;">Our Expertise</h3>
+          <div style="margin-bottom:20px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:#e2e8f0;">Design</span><span style="font-size:13px;color:#00f0ff;">95%</span></div><div style="height:8px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden;"><div style="width:95%;height:100%;background:linear-gradient(90deg,#00f0ff,#a855f7);border-radius:100px;"></div></div></div>
+          <div style="margin-bottom:20px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:#e2e8f0;">Development</span><span style="font-size:13px;color:#a855f7;">90%</span></div><div style="height:8px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden;"><div style="width:90%;height:100%;background:linear-gradient(90deg,#a855f7,#ec4899);border-radius:100px;"></div></div></div>
+          <div style="margin-bottom:20px;"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:#e2e8f0;">Marketing</span><span style="font-size:13px;color:#3b82f6;">85%</span></div><div style="height:8px;background:rgba(255,255,255,0.04);border-radius:100px;overflow:hidden;"><div style="width:85%;height:100%;background:linear-gradient(90deg,#3b82f6,#00f0ff);border-radius:100px;"></div></div></div>
+        </div>
+      </section>`,
+      timeline: `<section style="padding:80px 48px;background:#0a0a12;">
+        <h2 style="font-size:40px;font-weight:800;color:#fff;text-align:center;margin-bottom:56px;">Our Journey</h2>
+        <div style="max-width:600px;margin:0 auto;position:relative;padding-left:32px;border-left:2px solid rgba(0,240,255,0.15);">
+          <div style="margin-bottom:40px;position:relative;"><div style="position:absolute;left:-41px;top:4px;width:18px;height:18px;border-radius:50%;background:#08080c;border:2px solid #00f0ff;"></div><div style="font-size:12px;color:#00f0ff;margin-bottom:4px;">2023 — Q1</div><h4 style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:6px;">Idea & Research</h4><p style="font-size:14px;color:#64748b;line-height:1.6;">We identified the gap in the market for simple page builders.</p></div>
+          <div style="margin-bottom:40px;position:relative;"><div style="position:absolute;left:-41px;top:4px;width:18px;height:18px;border-radius:50%;background:#08080c;border:2px solid #a855f7;"></div><div style="font-size:12px;color:#a855f7;margin-bottom:4px;">2023 — Q3</div><h4 style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:6px;">MVP Launch</h4><p style="font-size:14px;color:#64748b;line-height:1.6;">First version released to beta testers with core drag-and-drop features.</p></div>
+          <div style="margin-bottom:40px;position:relative;"><div style="position:absolute;left:-41px;top:4px;width:18px;height:18px;border-radius:50%;background:#08080c;border:2px solid #3b82f6;"></div><div style="font-size:12px;color:#3b82f6;margin-bottom:4px;">2024 — Q1</div><h4 style="font-size:16px;font-weight:700;color:#e2e8f0;margin-bottom:6px;">Public Beta</h4><p style="font-size:14px;color:#64748b;line-height:1.6;">Opened to the public with GitHub export and 10K early users.</p></div>
+        </div>
+      </section>`,
+      map: `<div style="padding:16px 24px;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387190.2798885!2d-74.25987!3d40.6976701!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1700000000000" style="width:100%;height:350px;border:none;border-radius:12px;" allowfullscreen loading="lazy"></iframe></div>`,
+    };
+
+    // ══════════════════════════════════════════
+    //  TEMPLATE DEFINITIONS (10+ templates)
+    // ══════════════════════════════════════════
+    const templates = [
+      { id: 'blank', name: 'Blank Canvas', desc: 'Start from scratch', icon: '📄', components: [] },
+      { id: 'saas', name: 'SaaS Landing', desc: 'Perfect for software products', icon: '🚀', components: ['navbar','hero','trust-bar','features','stats','testimonials','pricing','cta','footer'] },
+      { id: 'startup', name: 'Startup', desc: 'Launch your startup', icon: '💡', components: ['navbar','hero','features','showcase','stats','cta','footer'] },
+      { id: 'agency', name: 'Agency', desc: 'Creative agency showcase', icon: '🎨', components: ['navbar','hero','trust-bar','features','team','testimonials','cta','footer'] },
+      { id: 'product', name: 'Product Launch', desc: 'Announce a new product', icon: '📦', components: ['navbar','hero','showcase','features','pricing','faq','footer'] },
+      { id: 'portfolio', name: 'Portfolio', desc: 'Personal portfolio', icon: '🧑‍💻', components: ['navbar','hero','gallery','progress','timeline','cta','footer'] },
+      { id: 'event', name: 'Event', desc: 'Upcoming event page', icon: '🎉', components: ['navbar','hero','countdown','features','team','faq','cta','footer'] },
+      { id: 'waitlist', name: 'Waitlist', desc: 'Coming soon page', icon: '⏳', components: ['navbar','hero','countdown','trust-bar','form','footer'] },
+      { id: 'pricing-page', name: 'Pricing Page', desc: 'Focused pricing page', icon: '💰', components: ['navbar','hero','pricing','faq','cta','footer'] },
+      { id: 'full', name: 'Full Page', desc: 'Everything included', icon: '🏗️', components: ['navbar','hero','trust-bar','features','stats','showcase','testimonials','pricing','faq','cta','footer'] },
+      { id: 'minimal', name: 'Minimal', desc: 'Clean and simple', icon: '✨', components: ['navbar','hero','features','cta','footer'] },
+      { id: 'blog', name: 'Blog Landing', desc: 'Blog-style landing page', icon: '📝', components: ['navbar','hero','features','testimonials','form','footer'] },
+    ];
+
+    // ══════════════════════════════════════════
+    //  GRAPES JS INITIALIZATION
+    // ══════════════════════════════════════════
+    let editor;
+    let selectedComponent = null;
+
+    function initEditor() {
+      editor = grapesjs.init({
+        container: '#gjs',
+        fromElement: false,
+        height: '100%',
+        width: 'auto',
+        storageManager: false,
+        panels: { defaults: [] },
+        deviceManager: {
+          devices: [
+            { name: 'Desktop', width: '' },
+            { name: 'Tablet', width: '768px', widthMedia: '992px' },
+            { name: 'Mobile', width: '375px', widthMedia: '480px' },
+          ]
+        },
+        canvas: {
+          styles: [
+            'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
+          ],
+          scripts: [],
+        },
+        // Enable inline editing, selection, and drag
+        dragMode: 'absolute',
+        allowScripts: 1,
+      });
+
+      // Set default canvas content
+      const defaultCSS = `
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #08080c; color: #e2e8f0; }
+        img { max-width: 100%; }
+        a { color: inherit; }
+      `;
+      editor.setStyle(defaultCSS);
+
+      // ── Register custom component types for drag from sidebar ──
+      Object.keys(componentHTML).forEach(key => {
+        editor.BlockManager.add(key, {
+          label: key,
+          content: componentHTML[key],
+          category: 'Custom',
+        });
+      });
+
+      // ── Listen for component selection to populate properties ──
+      editor.on('component:selected', (component) => {
+        selectedComponent = component;
+        showProperties(component);
+      });
+
+      editor.on('component:deselected', () => {
+        selectedComponent = null;
+        hideProperties();
+      });
+
+      // ── Listen for style/content changes to keep props in sync ──
+      editor.on('component:update', (component) => {
+        if (component === selectedComponent) {
+          showProperties(component);
+        }
+      });
+
+      // Load SaaS template by default so canvas isn't empty
+      loadTemplate('saas');
+    }
+
+    // ══════════════════════════════════════════
+    //  SIDEBAR DRAG → CANVAS
+    // ══════════════════════════════════════════
+    document.querySelectorAll('.comp-item[draggable]').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        const type = item.dataset.type;
+        if (componentHTML[type]) {
+          e.dataTransfer.setData('text/html', componentHTML[type]);
+          e.dataTransfer.effectAllowed = 'copy';
+        }
+      });
+
+      // Click to append
+      item.addEventListener('click', () => {
+        const type = item.dataset.type;
+        if (componentHTML[type] && editor) {
+          const wrapper = editor.DomComponents.getWrapper();
+          wrapper.append(componentHTML[type]);
+          showToast(`Added ${type} component`, 'success');
+        }
+      });
+    });
+
+    // ══════════════════════════════════════════
+    //  COMPONENT SEARCH FILTER
+    // ══════════════════════════════════════════
+    function filterComponents(query) {
+      const items = document.querySelectorAll('#componentList .comp-item');
+      const q = query.toLowerCase();
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+      });
+    }
+
+    // ══════════════════════════════════════════
+    //  PROPERTIES PANEL
+    // ══════════════════════════════════════════
+    function showProperties(component) {
+      document.getElementById('noSelection').classList.add('hidden');
+      document.getElementById('propsPanel').classList.remove('hidden');
+
+      const el = component.getEl();
+      const tag = component.get('tagName') || el?.tagName || '?';
+      document.getElementById('selectedTag').textContent = tag.toLowerCase();
+
+      // Text content
+      const textContent = component.get('content') || (el ? el.innerText : '');
+      document.getElementById('propText').value = textContent.substring(0, 100);
+
+      // Link
+      const href = component.getAttributes()?.href || '';
+      document.getElementById('propLink').value = href;
+
+      // Get computed/inline styles
+      const style = component.getStyle();
+
+      // Typography
+      document.getElementById('propFontSize').value = parseFloat(style['font-size']) || '';
+      document.getElementById('propFontWeight').value = style['font-weight'] || '400';
+      document.getElementById('propColor').value = toHex(style['color'] || '#ffffff');
+      document.getElementById('propColorText').value = style['color'] || '';
+      document.getElementById('propTextAlign').value = style['text-align'] || 'left';
+      document.getElementById('propLineHeight').value = parseFloat(style['line-height']) || '';
+
+      // Background
+      document.getElementById('propBgColor').value = toHex(style['background-color'] || '#0d0d14');
+      document.getElementById('propBgColorText').value = style['background-color'] || '';
+      document.getElementById('propBgImage').value = style['background-image'] || '';
+      document.getElementById('propGradient').value = style['background'] || '';
+
+      // Margin
+      document.getElementById('propMarginTop').value = parseFloat(style['margin-top']) || '';
+      document.getElementById('propMarginRight').value = parseFloat(style['margin-right']) || '';
+      document.getElementById('propMarginBottom').value = parseFloat(style['margin-bottom']) || '';
+      document.getElementById('propMarginLeft').value = parseFloat(style['margin-left']) || '';
+
+      // Padding
+      document.getElementById('propPaddingTop').value = parseFloat(style['padding-top']) || '';
+      document.getElementById('propPaddingRight').value = parseFloat(style['padding-right']) || '';
+      document.getElementById('propPaddingBottom').value = parseFloat(style['padding-bottom']) || '';
+      document.getElementById('propPaddingLeft').value = parseFloat(style['padding-left']) || '';
+
+      // Size
+      document.getElementById('propWidth').value = style['width'] || '';
+      document.getElementById('propHeight').value = style['height'] || '';
+      document.getElementById('propMaxWidth').value = style['max-width'] || '';
+
+      // Border & Effects
+      document.getElementById('propBorderRadius').value = style['border-radius'] || '';
+      document.getElementById('propBorder').value = style['border'] || '';
+      document.getElementById('propBoxShadow').value = style['box-shadow'] || '';
+      document.getElementById('propOpacity').value = style['opacity'] || '';
+
+      // Layout
+      document.getElementById('propDisplay').value = style['display'] || 'block';
+      document.getElementById('propFlexDir').value = style['flex-direction'] || 'row';
+      document.getElementById('propJustify').value = style['justify-content'] || 'flex-start';
+      document.getElementById('propAlignItems').value = style['align-items'] || 'stretch';
+      document.getElementById('propGap').value = style['gap'] || '';
+
+      lucide.createIcons();
+    }
+
+    function hideProperties() {
+      document.getElementById('noSelection').classList.remove('hidden');
+      document.getElementById('propsPanel').classList.add('hidden');
+      document.getElementById('selectedTag').textContent = 'none';
+    }
+
+    // Update an inline style on the selected component
+    function updateStyle(prop, value) {
+      if (!selectedComponent) return;
+      const styles = { ...selectedComponent.getStyle() };
+      if (value === '' || value === 'px' || value === 'undefinedpx') {
+        delete styles[prop];
+      } else {
+        styles[prop] = value;
+      }
+      selectedComponent.setStyle(styles);
+    }
+
+    // Update content or attributes
+    function updateProp(prop, value) {
+      if (!selectedComponent) return;
+      if (prop === 'text') {
+        // Set inner text
+        const el = selectedComponent.getEl();
+        if (el && el.children.length === 0) {
+          selectedComponent.set('content', value);
+        }
+      } else if (prop === 'link') {
+        selectedComponent.addAttributes({ href: value });
+      } else if (prop === 'animation') {
+        // Add CSS animation class via data attribute
+        if (value) {
+          selectedComponent.addAttributes({ 'data-animate': value });
+          updateStyle('animation', `${value} 0.6s ease-out`);
+        } else {
+          selectedComponent.removeAttributes('data-animate');
+          updateStyle('animation', '');
+        }
+      }
+    }
+
+    // Duplicate selected component
+    function duplicateSelected() {
+      if (!selectedComponent) return;
+      const parent = selectedComponent.parent();
+      if (parent) {
+        const idx = parent.components().indexOf(selectedComponent);
+        const clone = selectedComponent.clone();
+        parent.components().add(clone, { at: idx + 1 });
+        showToast('Component duplicated', 'success');
+      }
+    }
+
+    // Delete selected component
+    function deleteSelected() {
+      if (!selectedComponent) return;
+      selectedComponent.remove();
+      selectedComponent = null;
+      hideProperties();
+      showToast('Component deleted', 'info');
+    }
+
+    // Hex converter helper
+    function toHex(color) {
+      if (!color || color === 'transparent') return '#000000';
+      if (color.startsWith('#')) return color.length === 4 ? color : color.substring(0, 7);
+      if (color.startsWith('rgb')) {
+        const parts = color.match(/\d+/g);
+        if (parts && parts.length >= 3) {
+          return '#' + parts.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+        }
+      }
+      return '#000000';
+    }
+
+    // ══════════════════════════════════════════
+    //  DEVICE SWITCHER
+    // ══════════════════════════════════════════
+    function setDevice(device, btn) {
+      if (!editor) return;
+      const map = { desktop: 'Desktop', tablet: 'Tablet', mobile: 'Mobile' };
+      editor.setDevice(map[device] || 'Desktop');
+      document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // ══════════════════════════════════════════
+    //  PREVIEW
+    // ══════════════════════════════════════════
+    function previewPage() {
+      if (!editor) return;
+      const html = editor.getHtml();
+      const css = editor.getCss();
+      const fullPage = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${document.getElementById('pageName').value}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"><style>${css}</style></head><body>${html}</body></html>`;
+      const w = window.open('', '_blank');
+      w.document.write(fullPage);
+      w.document.close();
+    }
+
+    // ══════════════════════════════════════════
+    //  TEMPLATES
+    // ══════════════════════════════════════════
+    function renderTemplates() {
+      const grid = document.getElementById('templateGrid');
+      grid.innerHTML = '';
+      templates.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'template-card';
+        card.innerHTML = `
+          <div class="text-3xl mb-3">${t.icon}</div>
+          <div class="text-sm font-semibold text-slate-200 mb-1">${t.name}</div>
+          <div class="text-xs text-slate-500">${t.desc}</div>
+          <div class="text-[10px] text-slate-600 mt-2">${t.components.length} sections</div>
+        `;
+        card.addEventListener('click', () => {
+          loadTemplate(t.id);
+          closeAllModals();
+          showToast(`Loaded "${t.name}" template`, 'success');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function loadTemplate(id) {
+      if (!editor) return;
+      const t = templates.find(x => x.id === id);
+      if (!t) return;
+      const wrapper = editor.DomComponents.getWrapper();
+      wrapper.components('');
+      t.components.forEach(key => {
+        if (componentHTML[key]) {
+          wrapper.append(componentHTML[key]);
+        }
+      });
+    }
+
+    // ══════════════════════════════════════════
+    //  GITHUB EXPORT
+    // ══════════════════════════════════════════
+    function saveGitHubSettings() {
+      const token = document.getElementById('ghToken').value;
+      const owner = document.getElementById('ghOwner').value;
+      const repo = document.getElementById('ghRepo').value;
+      if (token && owner && repo) {
+        localStorage.setItem('gh_settings', JSON.stringify({ token, owner, repo }));
+        showToast('GitHub settings saved!', 'success');
+        closeAllModals();
+      } else {
+        showToast('Please fill in all GitHub fields', 'error');
+      }
+    }
+
+    async function exportToGitHub() {
+      const settingsRaw = localStorage.getItem('gh_settings');
+      if (!settingsRaw) {
+        showToast('Set up GitHub settings first', 'error');
+        openModal('githubModal');
+        return;
+      }
+      const { token, owner, repo } = JSON.parse(settingsRaw);
+      const pageName = document.getElementById('pageName').value || 'my-landing-page';
+      const fileName = `${pageName}.html`;
+
+      if (!editor) return;
+      const html = editor.getHtml();
+      const css = editor.getCss();
+      const fullPage = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${pageName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>${css}</style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+
+      showToast('Exporting to GitHub…', 'info');
+
+      try {
+        // Check if file exists (to get SHA for update)
+        let sha = null;
+        try {
+          const check = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`, {
+            headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
+          });
+          if (check.ok) {
+            const data = await check.json();
+            sha = data.sha;
+          }
+        } catch (e) { /* file doesn't exist yet */ }
+
+        const body = {
+          message: `Update ${fileName} via BuildUp`,
+          content: btoa(unescape(encodeURIComponent(fullPage))),
+        };
+        if (sha) body.sha = sha;
+
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${fileName}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${token}`,
+            Accept: 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+          const link = `https://${owner}.github.io/${repo}/${fileName}`;
+          showToast(`Exported! View: ${link}`, 'success');
+        } else {
+          const err = await res.json();
+          showToast(`GitHub error: ${err.message}`, 'error');
+        }
+      } catch (e) {
+        showToast(`Export failed: ${e.message}`, 'error');
+      }
+    }
+
+    // ══════════════════════════════════════════
+    //  FIREBASE AUTH
+    // ══════════════════════════════════════════
+    let isSignUp = false;
+
+    function toggleAuthMode() {
+      isSignUp = !isSignUp;
+      const btn = document.querySelector('#authContent .btn-neon.solid');
+      const link = document.querySelector('#authContent a');
+      if (isSignUp) {
+        btn.innerHTML = '<i data-lucide="user-plus" class="w-4 h-4"></i> Create Account';
+        link.textContent = 'Already have an account? Sign In';
+      } else {
+        btn.innerHTML = '<i data-lucide="mail" class="w-4 h-4"></i> Sign In with Email';
+        link.textContent = "Don't have an account? Sign Up";
+      }
+      lucide.createIcons();
+    }
+
+    async function emailSignIn() {
+      const email = document.getElementById('authEmail').value;
+      const pass = document.getElementById('authPassword').value;
+      if (!email || !pass) { showToast('Enter email and password', 'error'); return; }
+      try {
+        if (isSignUp) {
+          await auth.createUserWithEmailAndPassword(email, pass);
+        } else {
+          await auth.signInWithEmailAndPassword(email, pass);
+        }
+        closeAllModals();
+        showToast('Signed in successfully!', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    async function googleSignIn() {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithPopup(provider);
+        closeAllModals();
+        showToast('Signed in with Google!', 'success');
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    // Auth state listener
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      const area = document.getElementById('authArea');
+      if (user) {
+        area.innerHTML = `
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold" style="background:linear-gradient(135deg,#00f0ff,#a855f7);color:#08080c;">
+              ${(user.email || 'U')[0].toUpperCase()}
+            </div>
+            <span class="text-xs text-slate-400 max-w-[120px] truncate hidden md:block">${user.email}</span>
+            <button class="btn-neon !text-[11px] !px-3 !py-1.5" onclick="auth.signOut()"><i data-lucide="log-out" class="w-3 h-3"></i></button>
+          </div>
+        `;
+      } else {
+        area.innerHTML = '<button class="btn-neon solid" onclick="openModal(\'authModal\')"><i data-lucide="log-in" class="w-3.5 h-3.5"></i> Sign In</button>';
+      }
+      lucide.createIcons();
+    });
+
+    // ══════════════════════════════════════════
+    //  PROJECT SAVE / LOAD (Firestore)
+    // ══════════════════════════════════════════
+    async function saveProject() {
+      if (!editor) return;
+      const pageName = document.getElementById('pageName').value || 'my-landing-page';
+      const projectData = {
+        name: pageName,
+        html: editor.getHtml(),
+        css: editor.getCss(),
+        components: JSON.stringify(editor.getComponents()),
+        styles: JSON.stringify(editor.getStyle()),
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (currentUser) {
+        // Save to Firestore
+        try {
+          await db.collection('users').doc(currentUser.uid).collection('projects').doc(pageName).set(projectData);
+          showToast(`Project "${pageName}" saved to cloud!`, 'success');
+        } catch (e) {
+          showToast(`Cloud save failed: ${e.message}`, 'error');
+          // Fallback to local
+          localStorage.setItem(`buildup_project_${pageName}`, JSON.stringify(projectData));
+          showToast(`Saved locally as fallback`, 'info');
+        }
+      } else {
+        // Save to localStorage
+        localStorage.setItem(`buildup_project_${pageName}`, JSON.stringify(projectData));
+        // Track project names
+        const projects = JSON.parse(localStorage.getItem('buildup_projects') || '[]');
+        if (!projects.includes(pageName)) {
+          projects.push(pageName);
+          localStorage.setItem('buildup_projects', JSON.stringify(projects));
+        }
+        showToast(`Project "${pageName}" saved locally!`, 'success');
+      }
+    }
+
+    async function loadProjects() {
+      const list = document.getElementById('projectsList');
+      list.innerHTML = '<p class="text-sm text-slate-500 text-center py-8">Loading…</p>';
+      let projects = [];
+
+      if (currentUser) {
+        try {
+          const snap = await db.collection('users').doc(currentUser.uid).collection('projects').get();
+          snap.forEach(doc => projects.push({ id: doc.id, ...doc.data(), source: 'cloud' }));
+        } catch (e) { /* Firestore might not be configured */ }
+      }
+
+      // Also check localStorage
+      const localProjects = JSON.parse(localStorage.getItem('buildup_projects') || '[]');
+      localProjects.forEach(name => {
+        const data = localStorage.getItem(`buildup_project_${name}`);
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (!projects.find(p => p.id === name)) {
+            projects.push({ id: name, ...parsed, source: 'local' });
+          }
+        }
+      });
+
+      if (projects.length === 0) {
+        list.innerHTML = '<p class="text-sm text-slate-500 text-center py-8">No projects yet. Build something awesome!</p>';
+        return;
+      }
+
+      list.innerHTML = '';
+      projects.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'project-card flex items-center justify-between';
+        card.innerHTML = `
+          <div>
+            <div class="text-sm font-medium text-slate-200">${p.name || p.id}</div>
+            <div class="text-[10px] text-slate-500">${p.source === 'cloud' ? '☁️ Cloud' : '💾 Local'} • ${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : 'Unknown'}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-neon !text-[11px] !px-3 !py-1" onclick="loadProject('${p.id}', '${p.source}')"><i data-lucide="download" class="w-3 h-3"></i> Load</button>
+            <button class="btn-neon !text-[11px] !px-2 !py-1 !text-red-400 !border-red-500/20" onclick="deleteProject('${p.id}', '${p.source}')"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    async function loadProject(name, source) {
+      let data;
+      if (source === 'cloud' && currentUser) {
+        const doc = await db.collection('users').doc(currentUser.uid).collection('projects').doc(name).get();
+        data = doc.data();
+      } else {
+        data = JSON.parse(localStorage.getItem(`buildup_project_${name}`) || 'null');
+      }
+      if (data && editor) {
+        editor.setComponents(data.html || '');
+        if (data.css) editor.setStyle(data.css);
+        document.getElementById('pageName').value = data.name || name;
+        closeAllModals();
+        showToast(`Loaded "${name}"`, 'success');
+      } else {
+        showToast('Failed to load project', 'error');
+      }
+    }
+
+    async function deleteProject(name, source) {
+      if (!confirm(`Delete project "${name}"?`)) return;
+      if (source === 'cloud' && currentUser) {
+        await db.collection('users').doc(currentUser.uid).collection('projects').doc(name).delete();
+      }
+      localStorage.removeItem(`buildup_project_${name}`);
+      const projects = JSON.parse(localStorage.getItem('buildup_projects') || '[]').filter(p => p !== name);
+      localStorage.setItem('buildup_projects', JSON.stringify(projects));
+      showToast(`Deleted "${name}"`, 'info');
+      loadProjects();
+    }
+
+    // ══════════════════════════════════════════
+    //  MODALS
+    // ══════════════════════════════════════════
+    function openModal(id) {
+      closeAllModals();
+      document.getElementById(id).classList.add('active');
+      if (id === 'templatesModal') renderTemplates();
+      if (id === 'projectsModal') loadProjects();
+      // Load saved github settings
+      if (id === 'githubModal') {
+        const s = JSON.parse(localStorage.getItem('gh_settings') || '{}');
+        if (s.token) document.getElementById('ghToken').value = s.token;
+        if (s.owner) document.getElementById('ghOwner').value = s.owner;
+        if (s.repo) document.getElementById('ghRepo').value = s.repo;
+      }
+      lucide.createIcons();
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    }
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAllModals();
+    });
+
+    // ══════════════════════════════════════════
+    //  TOAST NOTIFICATIONS
+    // ══════════════════════════════════════════
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = message;
+      document.getElementById('toastContainer').appendChild(toast);
+      requestAnimationFrame(() => { toast.classList.add('show'); });
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    // ══════════════════════════════════════════
+    //  KEYBOARD SHORTCUTS
+    // ══════════════════════════════════════════
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+S = Save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveProject();
+      }
+      // Ctrl+P = Preview
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        previewPage();
+      }
+      // Delete / Backspace on selected component
+      if (e.key === 'Delete' && selectedComponent && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        deleteSelected();
+      }
+    });
+
+    // ══════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      initEditor();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
