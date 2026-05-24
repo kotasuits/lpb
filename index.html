@@ -291,6 +291,111 @@
     .spacing-grid label { min-width: 36px; font-size: 10px; }
     .spacing-grid input { font-size: 11px; padding: 5px 6px; }
 
+    /* ── Visual Box Model Widget ── */
+    .box-model {
+      position: relative;
+      width: 100%;
+      padding: 0;
+      margin: 4px 0 0;
+    }
+    .box-model-layer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-radius: 8px;
+    }
+    .box-model-margin {
+      background: rgba(0, 240, 255, 0.04);
+      border: 1px solid rgba(0, 240, 255, 0.12);
+      padding: 6px;
+    }
+    .box-model-padding {
+      background: rgba(168, 85, 247, 0.04);
+      border: 1px solid rgba(168, 85, 247, 0.12);
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+    }
+    .box-model-content {
+      background: rgba(59, 130, 246, 0.06);
+      border: 1px dashed rgba(59, 130, 246, 0.2);
+      border-radius: 4px;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 9px;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+    }
+    .box-model-label {
+      position: absolute;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+    .box-model-margin > .box-model-label {
+      top: -1px;
+      left: 8px;
+      color: #00f0ff;
+    }
+    .box-model-padding > .box-model-label {
+      top: -1px;
+      left: 8px;
+      color: #a855f7;
+    }
+    .box-model-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 4px;
+    }
+    .box-model-input {
+      width: 40px;
+      text-align: center;
+      background: rgba(8, 8, 12, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      padding: 3px 2px;
+      color: #e2e8f0;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .box-model-input:focus {
+      border-color: rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.06);
+    }
+    .box-model-input.margin-input:focus {
+      border-color: rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 8px rgba(0, 240, 255, 0.1);
+    }
+    .box-model-input.padding-input:focus {
+      border-color: rgba(168, 85, 247, 0.4);
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.1);
+    }
+    .box-model-center {
+      flex: 1;
+    }
+    .bm-top-bottom {
+      display: flex;
+      justify-content: center;
+      padding: 2px 0;
+    }
+    .unit-badge {
+      display: inline-block;
+      font-size: 8px;
+      color: #475569;
+      margin-left: 1px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
     /* ── Template Card ── */
     .template-card {
       background: rgba(18,18,28,0.5);
@@ -672,25 +777,74 @@
             </div>
           </div>
 
-          <!-- Margin -->
+          <!-- Margin & Padding — Visual Box Model Widget -->
           <div class="prop-group">
-            <div class="prop-group-title"><i data-lucide="move" class="w-3 h-3"></i> Margin</div>
-            <div class="spacing-grid">
-              <div class="prop-row"><label>Top</label><input id="propMarginTop" type="number" placeholder="0" oninput="updateStyle('margin-top', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Right</label><input id="propMarginRight" type="number" placeholder="0" oninput="updateStyle('margin-right', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Bottom</label><input id="propMarginBottom" type="number" placeholder="0" oninput="updateStyle('margin-bottom', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Left</label><input id="propMarginLeft" type="number" placeholder="0" oninput="updateStyle('margin-left', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+            <div class="prop-group-title"><i data-lucide="box" class="w-3 h-3"></i> Spacing (Box Model)</div>
+            <div class="box-model">
+              <!-- MARGIN layer -->
+              <div class="box-model-layer box-model-margin">
+                <span class="box-model-label">margin</span>
+                <!-- Margin Top -->
+                <div class="bm-top-bottom">
+                  <input id="propMarginTop" type="text" class="box-model-input margin-input" placeholder="0" title="Margin Top" oninput="updateSpacing('margin-top', this.value)" />
+                </div>
+                <!-- Margin Left / Content / Margin Right -->
+                <div class="box-model-row">
+                  <input id="propMarginLeft" type="text" class="box-model-input margin-input" placeholder="0" title="Margin Left" oninput="updateSpacing('margin-left', this.value)" />
+                  <div class="box-model-center">
+                    <!-- PADDING layer -->
+                    <div class="box-model-layer box-model-padding">
+                      <span class="box-model-label">padding</span>
+                      <!-- Padding Top -->
+                      <div class="bm-top-bottom">
+                        <input id="propPaddingTop" type="text" class="box-model-input padding-input" placeholder="0" title="Padding Top" oninput="updateSpacing('padding-top', this.value)" />
+                      </div>
+                      <!-- Padding Left / Content / Padding Right -->
+                      <div class="box-model-row">
+                        <input id="propPaddingLeft" type="text" class="box-model-input padding-input" placeholder="0" title="Padding Left" oninput="updateSpacing('padding-left', this.value)" />
+                        <div class="box-model-content">content</div>
+                        <input id="propPaddingRight" type="text" class="box-model-input padding-input" placeholder="0" title="Padding Right" oninput="updateSpacing('padding-right', this.value)" />
+                      </div>
+                      <!-- Padding Bottom -->
+                      <div class="bm-top-bottom">
+                        <input id="propPaddingBottom" type="text" class="box-model-input padding-input" placeholder="0" title="Padding Bottom" oninput="updateSpacing('padding-bottom', this.value)" />
+                      </div>
+                    </div>
+                  </div>
+                  <input id="propMarginRight" type="text" class="box-model-input margin-input" placeholder="0" title="Margin Right" oninput="updateSpacing('margin-right', this.value)" />
+                </div>
+                <!-- Margin Bottom -->
+                <div class="bm-top-bottom">
+                  <input id="propMarginBottom" type="text" class="box-model-input margin-input" placeholder="0" title="Margin Bottom" oninput="updateSpacing('margin-bottom', this.value)" />
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+              <p class="text-[9px] text-slate-600 flex items-center gap-1"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(0,240,255,0.15);border:1px solid rgba(0,240,255,0.3);"></span> margin</p>
+              <p class="text-[9px] text-slate-600 flex items-center gap-1"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.3);"></span> padding</p>
+              <p class="text-[9px] text-slate-500 ml-auto">px · % · auto</p>
             </div>
           </div>
 
-          <!-- Padding -->
+          <!-- Individual Margin Inputs (backup / precise control) -->
           <div class="prop-group">
-            <div class="prop-group-title"><i data-lucide="maximize-2" class="w-3 h-3"></i> Padding</div>
-            <div class="spacing-grid">
-              <div class="prop-row"><label>Top</label><input id="propPaddingTop" type="number" placeholder="0" oninput="updateStyle('padding-top', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Right</label><input id="propPaddingRight" type="number" placeholder="0" oninput="updateStyle('padding-right', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Bottom</label><input id="propPaddingBottom" type="number" placeholder="0" oninput="updateStyle('padding-bottom', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
-              <div class="prop-row"><label>Left</label><input id="propPaddingLeft" type="number" placeholder="0" oninput="updateStyle('padding-left', this.value + 'px')" /><span class="text-[10px] text-slate-500">px</span></div>
+            <div class="prop-group-title" onclick="this.nextElementSibling.classList.toggle('hidden')" style="cursor:pointer;"><i data-lucide="move" class="w-3 h-3"></i> Margin (Precise) <span class="ml-auto text-[9px] text-slate-600">▾</span></div>
+            <div class="spacing-grid hidden">
+              <div class="prop-row"><label>Top</label><input id="propMarginTopAlt" type="text" placeholder="0" oninput="updateSpacing('margin-top', this.value); document.getElementById('propMarginTop').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Right</label><input id="propMarginRightAlt" type="text" placeholder="0" oninput="updateSpacing('margin-right', this.value); document.getElementById('propMarginRight').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Bottom</label><input id="propMarginBottomAlt" type="text" placeholder="0" oninput="updateSpacing('margin-bottom', this.value); document.getElementById('propMarginBottom').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Left</label><input id="propMarginLeftAlt" type="text" placeholder="0" oninput="updateSpacing('margin-left', this.value); document.getElementById('propMarginLeft').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+            </div>
+          </div>
+
+          <!-- Individual Padding Inputs (backup / precise control) -->
+          <div class="prop-group">
+            <div class="prop-group-title" onclick="this.nextElementSibling.classList.toggle('hidden')" style="cursor:pointer;"><i data-lucide="maximize-2" class="w-3 h-3"></i> Padding (Precise) <span class="ml-auto text-[9px] text-slate-600">▾</span></div>
+            <div class="spacing-grid hidden">
+              <div class="prop-row"><label>Top</label><input id="propPaddingTopAlt" type="text" placeholder="0" oninput="updateSpacing('padding-top', this.value); document.getElementById('propPaddingTop').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Right</label><input id="propPaddingRightAlt" type="text" placeholder="0" oninput="updateSpacing('padding-right', this.value); document.getElementById('propPaddingRight').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Bottom</label><input id="propPaddingBottomAlt" type="text" placeholder="0" oninput="updateSpacing('padding-bottom', this.value); document.getElementById('propPaddingBottom').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
+              <div class="prop-row"><label>Left</label><input id="propPaddingLeftAlt" type="text" placeholder="0" oninput="updateSpacing('padding-left', this.value); document.getElementById('propPaddingLeft').value=this.value;" /><span class="text-[10px] text-slate-500">px</span></div>
             </div>
           </div>
 
@@ -1385,17 +1539,29 @@
       document.getElementById('propBgImage').value = style['background-image'] || '';
       document.getElementById('propGradient').value = style['background'] || '';
 
-      // Margin
-      document.getElementById('propMarginTop').value = parseFloat(style['margin-top']) || '';
-      document.getElementById('propMarginRight').value = parseFloat(style['margin-right']) || '';
-      document.getElementById('propMarginBottom').value = parseFloat(style['margin-bottom']) || '';
-      document.getElementById('propMarginLeft').value = parseFloat(style['margin-left']) || '';
+      // Margin — read raw values (supports px, %, auto, etc.)
+      const mt = style['margin-top'] || '', mr = style['margin-right'] || '', mb = style['margin-bottom'] || '', ml = style['margin-left'] || '';
+      document.getElementById('propMarginTop').value = cleanSpacingVal(mt);
+      document.getElementById('propMarginRight').value = cleanSpacingVal(mr);
+      document.getElementById('propMarginBottom').value = cleanSpacingVal(mb);
+      document.getElementById('propMarginLeft').value = cleanSpacingVal(ml);
+      // Sync alt inputs
+      const mta = document.getElementById('propMarginTopAlt'); if(mta) mta.value = cleanSpacingVal(mt);
+      const mra = document.getElementById('propMarginRightAlt'); if(mra) mra.value = cleanSpacingVal(mr);
+      const mba = document.getElementById('propMarginBottomAlt'); if(mba) mba.value = cleanSpacingVal(mb);
+      const mla = document.getElementById('propMarginLeftAlt'); if(mla) mla.value = cleanSpacingVal(ml);
 
-      // Padding
-      document.getElementById('propPaddingTop').value = parseFloat(style['padding-top']) || '';
-      document.getElementById('propPaddingRight').value = parseFloat(style['padding-right']) || '';
-      document.getElementById('propPaddingBottom').value = parseFloat(style['padding-bottom']) || '';
-      document.getElementById('propPaddingLeft').value = parseFloat(style['padding-left']) || '';
+      // Padding — read raw values
+      const pt = style['padding-top'] || '', pr = style['padding-right'] || '', pb = style['padding-bottom'] || '', pl = style['padding-left'] || '';
+      document.getElementById('propPaddingTop').value = cleanSpacingVal(pt);
+      document.getElementById('propPaddingRight').value = cleanSpacingVal(pr);
+      document.getElementById('propPaddingBottom').value = cleanSpacingVal(pb);
+      document.getElementById('propPaddingLeft').value = cleanSpacingVal(pl);
+      // Sync alt inputs
+      const pta = document.getElementById('propPaddingTopAlt'); if(pta) pta.value = cleanSpacingVal(pt);
+      const pra = document.getElementById('propPaddingRightAlt'); if(pra) pra.value = cleanSpacingVal(pr);
+      const pba = document.getElementById('propPaddingBottomAlt'); if(pba) pba.value = cleanSpacingVal(pb);
+      const pla = document.getElementById('propPaddingLeftAlt'); if(pla) pla.value = cleanSpacingVal(pl);
 
       // Size
       document.getElementById('propWidth').value = style['width'] || '';
@@ -1424,11 +1590,37 @@
       document.getElementById('selectedTag').textContent = 'none';
     }
 
+    // Clean a spacing value for display (strip 'px' from pure pixel values for compact box-model display)
+    function cleanSpacingVal(v) {
+      if (!v || v === '0px' || v === '0') return '';
+      // Keep 'auto', '%', 'em', 'rem' as-is; strip 'px' for pure numbers
+      if (v === 'auto') return 'auto';
+      const num = parseFloat(v);
+      if (!isNaN(num) && v.endsWith('px')) return String(num);
+      return v;
+    }
+
+    // Smart spacing updater: auto-appends 'px' for bare numbers, supports 'auto', '%', 'rem'
+    function updateSpacing(prop, rawValue) {
+      if (!selectedComponent) return;
+      const styles = { ...selectedComponent.getStyle() };
+      const v = rawValue.trim();
+      if (v === '' || v === '0') {
+        delete styles[prop];
+      } else if (v === 'auto' || v.endsWith('%') || v.endsWith('em') || v.endsWith('rem') || v.endsWith('vw') || v.endsWith('vh')) {
+        styles[prop] = v;
+      } else {
+        const num = parseFloat(v);
+        styles[prop] = isNaN(num) ? v : num + 'px';
+      }
+      selectedComponent.setStyle(styles);
+    }
+
     // Update an inline style on the selected component
     function updateStyle(prop, value) {
       if (!selectedComponent) return;
       const styles = { ...selectedComponent.getStyle() };
-      if (value === '' || value === 'px' || value === 'undefinedpx') {
+      if (value === '' || value === 'px' || value === 'undefinedpx' || value === 'NaNpx') {
         delete styles[prop];
       } else {
         styles[prop] = value;
